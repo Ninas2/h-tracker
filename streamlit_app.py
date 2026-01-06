@@ -4,10 +4,7 @@ from utils import (
     add_booking_dialog,
 )
 
-# --------------------------------------------------
-# Page config
-# --------------------------------------------------
-st.set_page_config(page_title="Trip Planner", layout="wide")
+st.set_page_config(layout="wide")
 
 if "bookings" not in st.session_state:
     st.session_state.bookings = []

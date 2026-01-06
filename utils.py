@@ -1,5 +1,6 @@
 import streamlit as st
 
+@st.dialog("➕ Add a booking")
 def bookings_summary(bookings):
     """
     Renders the bookings summary panel.
@@ -70,7 +71,6 @@ def add_booking_dialog():
     Appends the booking to st.session_state.bookings.
     """
 
-    @st.dialog("➕ Add a booking")
     def _dialog():
         with st.form("add_booking_form", clear_on_submit=True):
             booking_type = st.selectbox(
