@@ -1,9 +1,10 @@
 import streamlit as st
 
-# --------------------------------------------------
-# Bookings summary component
-# --------------------------------------------------
 def bookings_summary(bookings):
+    """
+    Renders the bookings summary panel.
+    """
+
     st.markdown(
         """
         <style>

@@ -1,7 +1,5 @@
 import streamlit as st
-from utils import (
-    bookings_summary,
-)
+from utils import bookings_summary
 
 # --------------------------------------------------
 # Page config
@@ -23,15 +21,10 @@ if "bookings" not in st.session_state:
 left, right = st.columns([3, 1])
 
 # --------------------------------------------------
-# Main content (left)
+# Main content
 # --------------------------------------------------
 with left:
     st.title("✈️ Trip Planner")
-
-    st.write(
-        "Add your trip bookings below. "
-        "They will automatically appear in the summary panel on the right."
-    )
 
     with st.form("add_booking_form", clear_on_submit=True):
         st.subheader("➕ Add a booking")
@@ -41,7 +34,7 @@ with left:
             ["Flight", "Hotel", "Train", "Car Rental", "Activity"]
         )
 
-        title = st.text_input("Title (e.g. NYC → Paris, Hotel Name)")
+        title = st.text_input("Title")
         start_date = st.date_input("Start date")
         end_date = st.date_input("End date")
         details = st.text_input("Extra details (optional)")
@@ -70,7 +63,7 @@ with left:
                 st.success("Booking added!")
 
 # --------------------------------------------------
-# Sidebar / right panel
+# Bookings panel
 # --------------------------------------------------
 with right:
     bookings_summary(st.session_state.bookings)
