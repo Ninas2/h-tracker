@@ -50,6 +50,7 @@ def bookings_summary(bookings):
             st.markdown(f"[🔗 View listing]({b['link']})")
         st.markdown("---")
 
+
 # -----------------------------
 # Layout
 # -----------------------------
@@ -59,16 +60,16 @@ with left:
     st.title("✈️ Trip Planner")
     st.write("Track all your trip bookings in one place.")
 
-    if st.button("➕ Add booking"):
+    # Use a form instead of dialog
+    show_form = st.button("➕ Add booking")
 
-        # -----------------------------
-        # Use st.modal safely
-        # -----------------------------
-        with st.modal("Add Booking"):
+    if show_form:
+        with st.form("add_booking_form", clear_on_submit=True):
             booking_type = st.selectbox(
                 "Booking type",
                 ["Flight", "Housing", "Train", "Car Rental", "Activity"]
             )
+
             title = st.text_input("Title")
             start_date = st.date_input("Start date")
             end_date = st.date_input("End date")
@@ -88,7 +89,8 @@ with left:
                     inferred_name = st.text_input("Property name")
                     inferred_city = st.text_input("City")
 
-            if st.button("Add Booking", key="submit_modal"):
+            submitted = st.form_submit_button("Add Booking")
+            if submitted:
                 if booking_type != "Housing" and not title:
                     st.error("Title is required")
                 else:
@@ -108,7 +110,7 @@ with left:
                         }
                     )
                     st.success("Booking added!")
-                    st.experimental_rerun()  # refresh to close modal
+                    st.experimental_rerun()
 
 with right:
     bookings_summary(st.session_state.bookings)
