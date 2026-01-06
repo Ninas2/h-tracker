@@ -77,60 +77,63 @@ def bookings_summary(bookings):
 # -----------------------------
 # Add booking modal (dialog)
 # -----------------------------
-@st.dialog("➕ Add a booking")
-def add_booking_dialog():
-    # NOTE: defined at module level, never inside another function
-    with st.form("add_booking_form", clear_on_submit=True):
-        booking_type = st.selectbox(
-            "Booking type",
-            ["Flight", "Housing", "Train", "Car Rental", "Activity"]
-        )
-
-        # default inputs
-        title = st.text_input("Title")
-        start_date = st.date_input("Start date")
-        end_date = st.date_input("End date")
-        details = st.text_input("Extra details (optional)")
-
-        # housing-specific
-        link = None
-        inferred_name = None
-        inferred_city = None
-
-        if booking_type == "Housing":
-            link = st.text_input("Listing link (Airbnb / Booking.com)")
-
-            if link:
-                inferred = infer_property_from_url(link)
-                inferred_name = st.text_input("Property name", value=inferred.get("name") or "")
-                inferred_city = st.text_input("City", value=inferred.get("city") or "")
-            else:
-                inferred_name = st.text_input("Property name")
-                inferred_city = st.text_input("City")
-
-        submitted = st.form_submit_button("Add booking")
-
-        if submitted:
-            if booking_type != "Housing" and not title:
-                st.error("Title is required")
-                return
-
-            date_str = (
-                start_date.strftime("%Y-%m-%d")
-                if start_date == end_date
-                else f"{start_date} → {end_date}"
+def get_add_booking_dialog():
+    """
+    Returns a Streamlit dialog function.
+    Call the returned function inside st.button click to avoid ScriptRunContext warning.
+    """
+    @st.dialog("➕ Add a booking")
+    def _dialog():
+        with st.form("add_booking_form", clear_on_submit=True):
+            booking_type = st.selectbox(
+                "Booking type",
+                ["Flight", "Housing", "Train", "Car Rental", "Activity"]
             )
 
-            st.session_state.bookings.append(
-                {
-                    "type": booking_type,
-                    "title": inferred_name if booking_type == "Housing" else title,
-                    "city": inferred_city if booking_type == "Housing" else "",
-                    "date": date_str,
-                    "details": details,
-                    "link": link if booking_type == "Housing" else "",
-                }
-            )
+            title = st.text_input("Title")
+            start_date = st.date_input("Start date")
+            end_date = st.date_input("End date")
+            details = st.text_input("Extra details (optional)")
 
-            st.success("Booking added!")
-            st.rerun()
+            link = None
+            inferred_name = None
+            inferred_city = None
+
+            if booking_type == "Housing":
+                link = st.text_input("Listing link (Airbnb / Booking.com)")
+                if link:
+                    inferred = infer_property_from_url(link)
+                    inferred_name = st.text_input("Property name", value=inferred.get("name") or "")
+                    inferred_city = st.text_input("City", value=inferred.get("city") or "")
+                else:
+                    inferred_name = st.text_input("Property name")
+                    inferred_city = st.text_input("City")
+
+            submitted = st.form_submit_button("Add booking")
+
+            if submitted:
+                if booking_type != "Housing" and not title:
+                    st.error("Title is required")
+                    return
+
+                date_str = (
+                    start_date.strftime("%Y-%m-%d")
+                    if start_date == end_date
+                    else f"{start_date} → {end_date}"
+                )
+
+                st.session_state.bookings.append(
+                    {
+                        "type": booking_type,
+                        "title": inferred_name if booking_type == "Housing" else title,
+                        "city": inferred_city if booking_type == "Housing" else "",
+                        "date": date_str,
+                        "details": details,
+                        "link": link if booking_type == "Housing" else "",
+                    }
+                )
+
+                st.success("Booking added!")
+                st.rerun()
+
+    return _dialog
