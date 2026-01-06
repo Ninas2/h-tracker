@@ -1,11 +1,9 @@
 import streamlit as st
 
-@st.dialog("➕ Add a booking")
+# --------------------------------------------------
+# Bookings summary component
+# --------------------------------------------------
 def bookings_summary(bookings):
-    """
-    Renders the bookings summary panel.
-    """
-
     st.markdown(
         """
         <style>
@@ -65,47 +63,43 @@ def bookings_summary(bookings):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+# --------------------------------------------------
+# Add booking dialog (modal)
+# --------------------------------------------------
+@st.dialog("➕ Add a booking")
 def add_booking_dialog():
-    """
-    Modal dialog for adding a booking.
-    Appends the booking to st.session_state.bookings.
-    """
+    with st.form("add_booking_form", clear_on_submit=True):
+        booking_type = st.selectbox(
+            "Booking type",
+            ["Flight", "Hotel", "Train", "Car Rental", "Activity"]
+        )
 
-    def _dialog():
-        with st.form("add_booking_form", clear_on_submit=True):
-            booking_type = st.selectbox(
-                "Booking type",
-                ["Flight", "Hotel", "Train", "Car Rental", "Activity"]
+        title = st.text_input("Title")
+        start_date = st.date_input("Start date")
+        end_date = st.date_input("End date")
+        details = st.text_input("Extra details (optional)")
+
+        submitted = st.form_submit_button("Add booking")
+
+        if submitted:
+            if not title:
+                st.error("Title is required")
+                return
+
+            date_str = (
+                start_date.strftime("%Y-%m-%d")
+                if start_date == end_date
+                else f"{start_date} → {end_date}"
             )
 
-            title = st.text_input("Title")
-            start_date = st.date_input("Start date")
-            end_date = st.date_input("End date")
-            details = st.text_input("Extra details (optional)")
+            st.session_state.bookings.append(
+                {
+                    "type": booking_type,
+                    "title": title,
+                    "date": date_str,
+                    "details": details,
+                }
+            )
 
-            submitted = st.form_submit_button("Add booking")
-
-            if submitted:
-                if not title:
-                    st.error("Title is required")
-                    return
-
-                date_str = (
-                    start_date.strftime("%Y-%m-%d")
-                    if start_date == end_date
-                    else f"{start_date} → {end_date}"
-                )
-
-                st.session_state.bookings.append(
-                    {
-                        "type": booking_type,
-                        "title": title,
-                        "date": date_str,
-                        "details": details,
-                    }
-                )
-
-                st.success("Booking added!")
-                st.rerun()
-
-    _dialog()
+            st.success("Booking added!")
+            st.rerun()

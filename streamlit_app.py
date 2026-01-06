@@ -1,21 +1,41 @@
 import streamlit as st
-from utils import (
-    bookings_summary,
-    add_booking_dialog,
+from utils import bookings_summary, add_booking_dialog
+
+# --------------------------------------------------
+# Page config (must be first Streamlit call)
+# --------------------------------------------------
+st.set_page_config(
+    page_title="Trip Planner",
+    layout="wide",
 )
 
-st.set_page_config(layout="wide")
-
+# --------------------------------------------------
+# Session state init
+# --------------------------------------------------
 if "bookings" not in st.session_state:
     st.session_state.bookings = []
 
+# --------------------------------------------------
+# Layout
+# --------------------------------------------------
 left, right = st.columns([3, 1])
 
+# --------------------------------------------------
+# Main content
+# --------------------------------------------------
 with left:
     st.title("✈️ Trip Planner")
 
-    if st.button("➕ Add booking"):
-        add_booking_dialog()
+    st.write(
+        "Track all your trip bookings in one place."
+    )
 
+    # Button that triggers the modal
+    if st.button("➕ Add booking"):
+        add_booking_dialog()   # ✅ THIS opens the dialog
+
+# --------------------------------------------------
+# Bookings summary panel
+# --------------------------------------------------
 with right:
     bookings_summary(st.session_state.bookings)
