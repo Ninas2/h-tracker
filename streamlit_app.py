@@ -41,7 +41,8 @@ def bookings_summary(bookings):
         st.caption("No bookings added yet.")
         return
     for b in bookings:
-        st.markdown(f"**{b['type']}**: {b['title']} {f'({b.get('city','')})' if b.get('city') else ''}")
+        city_text = f"({b.get('city','')})" if b.get('city') else ''
+        st.markdown(f"**{b['type']}**: {b['title']} {city_text}")
         st.markdown(f"Dates: {b['date']}")
         if b.get('details'):
             st.markdown(f"Details: {b['details']}")
