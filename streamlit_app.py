@@ -1,69 +1,24 @@
 import streamlit as st
-from utils import bookings_summary
+from utils import (
+    bookings_summary,
+    add_booking_dialog,
+)
 
 # --------------------------------------------------
 # Page config
 # --------------------------------------------------
-st.set_page_config(
-    page_title="Trip Bookings Tracker",
-    layout="wide",
-)
+st.set_page_config(page_title="Trip Planner", layout="wide")
 
-# --------------------------------------------------
-# Session state init
-# --------------------------------------------------
 if "bookings" not in st.session_state:
     st.session_state.bookings = []
 
-# --------------------------------------------------
-# Layout
-# --------------------------------------------------
 left, right = st.columns([3, 1])
 
-# --------------------------------------------------
-# Main content
-# --------------------------------------------------
 with left:
     st.title("✈️ Trip Planner")
 
-    with st.form("add_booking_form", clear_on_submit=True):
-        st.subheader("➕ Add a booking")
+    if st.button("➕ Add booking"):
+        add_booking_dialog()
 
-        booking_type = st.selectbox(
-            "Booking type",
-            ["Flight", "Hotel", "Train", "Car Rental", "Activity"]
-        )
-
-        title = st.text_input("Title")
-        start_date = st.date_input("Start date")
-        end_date = st.date_input("End date")
-        details = st.text_input("Extra details (optional)")
-
-        submitted = st.form_submit_button("Add booking")
-
-        if submitted:
-            if not title:
-                st.error("Title is required")
-            else:
-                date_str = (
-                    start_date.strftime("%Y-%m-%d")
-                    if start_date == end_date
-                    else f"{start_date} → {end_date}"
-                )
-
-                st.session_state.bookings.append(
-                    {
-                        "type": booking_type,
-                        "title": title,
-                        "date": date_str,
-                        "details": details,
-                    }
-                )
-
-                st.success("Booking added!")
-
-# --------------------------------------------------
-# Bookings panel
-# --------------------------------------------------
 with right:
     bookings_summary(st.session_state.bookings)
