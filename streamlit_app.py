@@ -122,8 +122,8 @@ with right:
 
             with col_button:
                 if st.button("🗑", key=f"remove_{i}"):
-                    if st.checkbox("Confirm delete", key=f"confirm_{i}"):
-                        st.session_state.bookings.pop(i)
-                        st.rerun()
+                    st.session_state.bookings.pop(i)
+                    st.rerun()
+                    
 
             st.markdown("---")
