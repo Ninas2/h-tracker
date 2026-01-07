@@ -106,7 +106,8 @@ with right:
                 st.markdown(f"[🔗 View listing]({b['link']})")
 
             # --- Remove button ---
-            if st.button("🗑 Remove", key=f"remove_{i}"):
+        if st.button("🗑 Remove", key=f"remove_{i}"):
+            if st.checkbox("Confirm delete", key=f"confirm_{i}"):
                 st.session_state.bookings.pop(i)
                 st.rerun()
 
