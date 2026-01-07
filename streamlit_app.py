@@ -19,6 +19,8 @@ if "editing_booking_index" not in st.session_state:
 if "show_housing_form" not in st.session_state:
     st.session_state.show_housing_form = False
 
+if "editing_housing_index" not in st.session_state:
+    st.session_state.editing_housing_index = False
 
 # -----------------------------
 # URL inference (simple)
