@@ -150,10 +150,13 @@ with left:
 with right:
     st.markdown("### 📌 House Bookings")
 
-    if not st.session_state.bookings:
-        st.caption("No bookings yet.")
+    # Filter only Housing bookings
+    housing_bookings = [b for b in st.session_state.bookings if b["type"] == "Housing"]
+
+    if not housing_bookings:
+        st.caption("No house bookings yet.")
     else:
-        for i, b in enumerate(st.session_state.bookings):
+        for i, b in enumerate(housing_bookings):
             city_text = f" ({b.get('city','')})" if b.get("city") else ""
 
             col_text, col_buttons = st.columns([5, 2])
@@ -167,10 +170,14 @@ with right:
                     st.markdown(f"[🔗 Listing]({b['link']})")
 
             with col_buttons:
-                if st.button("🗑", key=f"remove_{i}"):
-                    st.session_state.bookings.pop(i)
-                if st.button("✏️", key=f"edit_{i}"):
-                    st.session_state.editing_booking_index = i
+                # To remove correctly, find index in original session_state list
+                original_index = st.session_state.bookings.index(b)
+
+                if st.button("🗑", key=f"remove_{original_index}"):
+                    st.session_state.bookings.pop(original_index)
+                if st.button("✏️", key=f"edit_{original_index}"):
+                    st.session_state.editing_booking_index = original_index
                     st.session_state.show_form = True
 
             st.markdown("---")
+
