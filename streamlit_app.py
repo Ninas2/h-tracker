@@ -107,22 +107,23 @@ with right:
         st.caption("No bookings yet.")
     else:
         for i, b in enumerate(st.session_state.bookings):
-            city_text = f" ({b['city']})" if b["city"] else ""
+            city_text = f" ({b['city']})" if b.get("city") else ""
 
             # Create two columns: text | remove button
             col_text, col_button = st.columns([5, 1])
 
-            st.markdown(f"**{b['type']}**: {b['title']}{city_text}")
-            st.markdown(f"Dates: {b['date']}")
+            with col_text:
+                st.markdown(f"**{b['type']}**: {b['title']}{city_text}")
+                st.markdown(f"Dates: {b['date']}")
+                if b.get("details"):
+                    st.markdown(f"Details: {b['details']}")
+                if b.get("link"):
+                    st.markdown(f"[🔗 Listing]({b['link']})")
 
-            if b["details"]:
-                st.markdown(f"Details: {b['details']}")
-
-            if b["link"]:
-                st.markdown(f"[🔗 Listing]({b['link']})")
-
-            if st.button("🗑 Remove", key=f"remove_{i}"):
-                st.session_state.bookings.pop(i)
-                st.rerun()
+            with col_button:
+                if st.button("🗑 Remove", key=f"remove_{i}"):
+                    if st.checkbox("Confirm delete", key=f"confirm_{i}"):
+                        st.session_state.bookings.pop(i)
+                        st.rerun()
 
             st.markdown("---")
