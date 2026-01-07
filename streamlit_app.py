@@ -16,6 +16,10 @@ if "show_form" not in st.session_state:
 if "editing_booking_index" not in st.session_state:
     st.session_state.editing_booking_index = None
 
+if "show_housing_form" not in st.session_state:
+    st.session_state.show_housing_form = False
+
+
 # -----------------------------
 # URL inference (simple)
 # -----------------------------
@@ -156,31 +160,44 @@ with right:
 
     # ---------------- Housing Form ----------------
     if st.session_state.show_housing_form:
-        with st.form("housing_form", clear_on_submit=True):
-            link = st.text_input("Listing link (Airbnb / Booking.com)")
-            property_name = ""
-            city = ""
-            if link:
-                inferred_name, inferred_city = infer_property(link)
-                property_name = st.text_input("Property name", value=inferred_name)
-                city = st.text_input("City", value=inferred_city)
+
+        # ---- Prefill if editing ----
+        if st.session_state.editing_housing_index is not None:
+            b = st.session_state.bookings[st.session_state.editing_housing_index]
+            pre_link = b.get("link", "")
+            pre_title = b.get("title", "")
+            pre_details = b.get("details", "")
+            pre_price = b.get("price", "")
+            if "→" in b["date"]:
+                pre_start, pre_end = b["date"].split(" → ")
             else:
-                property_name = st.text_input("Property name")
-                city = st.text_input("City")
+                pre_start = pre_end = b["date"]
+        else:
+            pre_link = pre_title = pre_details = pre_price = ""
+            pre_start = pre_end = None
 
-            start_date = st.date_input("Start date")
-            end_date = st.date_input("End date")
-            details = st.text_input("Extra details (optional)")
-            price = st.text_input("Price (EUR)")  # New Price field
+        with st.form("housing_form", clear_on_submit=False):
 
-            # Save + Cancel side by side
-            col_save, col_cancel = st.columns([1, 1])
+            link = st.text_input("Listing link (Airbnb / Booking.com)", value=pre_link)
+
+            if link:
+                inferred_name = infer_property(link)
+                title = st.text_input("Property name", value=inferred_name or pre_title)
+            else:
+                title = st.text_input("Property name", value=pre_title)
+
+            start_date = st.date_input("Start date", value=pre_start) if pre_start else st.date_input("Start date")
+            end_date = st.date_input("End date", value=pre_end) if pre_end else st.date_input("End date")
+
+            price = st.text_input("Price (EUR)", value=pre_price)
+            details = st.text_input("Extra details (optional)", value=pre_details)
+
+            col_save, col_cancel = st.columns(2)
             with col_save:
                 submitted = st.form_submit_button("💾 Save")
             with col_cancel:
                 canceled = st.form_submit_button("❌ Cancel")
 
-            # -------- Save booking --------
             if submitted:
                 date_str = (
                     start_date.strftime("%Y-%m-%d")
@@ -188,34 +205,41 @@ with right:
                     else f"{start_date} → {end_date}"
                 )
 
-                st.session_state.bookings.append({
+                booking_data = {
                     "type": "Housing",
-                    "title": property_name,  # Property name is also title
-                    "city": city,
+                    "title": title,
                     "date": date_str,
                     "details": details,
                     "link": link,
-                    "price": price,  # Store price
-                })
+                    "price": price,
+                }
+
+                if st.session_state.editing_housing_index is not None:
+                    # Update existing
+                    st.session_state.bookings[st.session_state.editing_housing_index] = booking_data
+                else:
+                    # Add new
+                    st.session_state.bookings.append(booking_data)
 
                 st.session_state.show_housing_form = False
+                st.session_state.editing_housing_index = None
 
-            # -------- Cancel --------
             if canceled:
                 st.session_state.show_housing_form = False
+                st.session_state.editing_housing_index = None
+
 
     # ---------------- Display Housing Bookings ----------------
     if not housing_bookings:
         st.caption("No house bookings yet.")
     else:
         for i, b in enumerate(housing_bookings):
-            city_text = f" ({b.get('city','')})" if b.get("city") else ""
             price_text = f" - {b.get('price','')} EUR" if b.get("price") else ""
 
             col_text, col_buttons = st.columns([5, 2])
 
             with col_text:
-                st.markdown(f"**{b['type']}**: {b['title']}{city_text}{price_text}")
+                st.markdown(f"**{b['type']}**: {b['title']}{price_text}")
                 st.markdown(f"Dates: {b['date']}")
                 if b.get("details"):
                     st.markdown(f"Details: {b['details']}")
@@ -229,8 +253,9 @@ with right:
                 if st.button("🗑", key=f"remove_{original_index}"):
                     st.session_state.bookings.pop(original_index)
                 if st.button("✏️", key=f"edit_{original_index}"):
-                    st.session_state.editing_booking_index = original_index
-                    st.session_state.show_form = True
+                    st.session_state.editing_housing_index = original_index
+                    st.session_state.show_housing_form = True
+
 
             st.markdown("---")
 
