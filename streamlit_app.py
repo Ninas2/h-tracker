@@ -109,6 +109,9 @@ with right:
         for i, b in enumerate(st.session_state.bookings):
             city_text = f" ({b['city']})" if b["city"] else ""
 
+            # Create two columns: text | remove button
+            col_text, col_button = st.columns([5, 1])
+
             st.markdown(f"**{b['type']}**: {b['title']}{city_text}")
             st.markdown(f"Dates: {b['date']}")
 
