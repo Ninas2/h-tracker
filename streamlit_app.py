@@ -101,7 +101,7 @@ with left:
 # Right column
 # -----------------------------
 with right:
-    st.markdown("### 📌 Bookings")
+    st.markdown("### 📌 House Bookings")
 
     if not st.session_state.bookings:
         st.caption("No bookings yet.")
@@ -110,7 +110,7 @@ with right:
             city_text = f" ({b['city']})" if b.get("city") else ""
 
             # Create two columns: text | remove button
-            col_text, col_button = st.columns([5, 1])
+            col_text, col_button = st.columns([5, 2])
 
             with col_text:
                 st.markdown(f"**{b['type']}**: {b['title']}{city_text}")
