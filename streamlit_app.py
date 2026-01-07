@@ -150,31 +150,37 @@ with right:
     if st.button("➕ Add Housing Booking"):
         st.session_state.show_housing_form = True
 
-    # Show Housing form if adding or editing a housing booking
+    # Initialize flag
     if "show_housing_form" not in st.session_state:
         st.session_state.show_housing_form = False
 
+    # ---------------- Housing Form ----------------
     if st.session_state.show_housing_form:
         with st.form("housing_form", clear_on_submit=True):
             link = st.text_input("Listing link (Airbnb / Booking.com)")
-            name = ""
+            property_name = ""
+            city = ""
             if link:
-                inferred_name = infer_property(link)
-                name = st.text_input("Property name", value=inferred_name)
+                inferred_name, inferred_city = infer_property(link)
+                property_name = st.text_input("Property name", value=inferred_name)
+                city = st.text_input("City", value=inferred_city)
             else:
-                name = st.text_input("Property name")
+                property_name = st.text_input("Property name")
+                city = st.text_input("City")
 
             start_date = st.date_input("Start date")
             end_date = st.date_input("End date")
             details = st.text_input("Extra details (optional)")
+            price = st.text_input("Price (EUR)")  # New Price field
 
-            # Save + Cancel buttons
+            # Save + Cancel side by side
             col_save, col_cancel = st.columns([1, 1])
             with col_save:
                 submitted = st.form_submit_button("💾 Save")
             with col_cancel:
                 canceled = st.form_submit_button("❌ Cancel")
 
+            # -------- Save booking --------
             if submitted:
                 date_str = (
                     start_date.strftime("%Y-%m-%d")
@@ -184,14 +190,17 @@ with right:
 
                 st.session_state.bookings.append({
                     "type": "Housing",
-                    "title": name,
+                    "title": property_name,  # Property name is also title
+                    "city": city,
                     "date": date_str,
                     "details": details,
                     "link": link,
+                    "price": price,  # Store price
                 })
 
                 st.session_state.show_housing_form = False
 
+            # -------- Cancel --------
             if canceled:
                 st.session_state.show_housing_form = False
 
@@ -200,10 +209,13 @@ with right:
         st.caption("No house bookings yet.")
     else:
         for i, b in enumerate(housing_bookings):
+            city_text = f" ({b.get('city','')})" if b.get("city") else ""
+            price_text = f" - {b.get('price','')} EUR" if b.get("price") else ""
+
             col_text, col_buttons = st.columns([5, 2])
 
             with col_text:
-                st.markdown(f"**{b['type']}**: {b['title']}")
+                st.markdown(f"**{b['type']}**: {b['title']}{city_text}{price_text}")
                 st.markdown(f"Dates: {b['date']}")
                 if b.get("details"):
                     st.markdown(f"Details: {b['details']}")
