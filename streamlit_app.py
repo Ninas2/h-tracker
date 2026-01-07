@@ -88,16 +88,27 @@ with left:
 
 # ---- Right column: Bookings summary ----
 with right:
-    st.markdown("<h3>📌 Bookings</h3>", unsafe_allow_html=True)
+    st.markdown("### 📌 Bookings")
+
     if not st.session_state.bookings:
         st.caption("No bookings added yet.")
     else:
-        for b in st.session_state.bookings:
-            city_text = f"({b.get('city','')})" if b.get('city') else ''
-            st.markdown(f"**{b['type']}**: {b['title']} {city_text}")
+        for i, b in enumerate(st.session_state.bookings):
+            city_text = f" ({b['city']})" if b.get("city") else ""
+
+            st.markdown(f"**{b['type']}**: {b['title']}{city_text}")
             st.markdown(f"Dates: {b['date']}")
-            if b.get('details'):
+
+            if b.get("details"):
                 st.markdown(f"Details: {b['details']}")
-            if b.get('link'):
+
+            if b.get("link"):
                 st.markdown(f"[🔗 View listing]({b['link']})")
+
+            # --- Remove button ---
+            if st.button("🗑 Remove", key=f"remove_{i}"):
+                st.session_state.bookings.pop(i)
+                st.rerun()
+
             st.markdown("---")
+
